@@ -2,12 +2,12 @@
 
 import * as z from "zod";
 
-import { LoginSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas";
 
-export const login = async (
-  values: z.infer<typeof LoginSchema>
+export const register = async (
+  values: z.infer<typeof RegisterSchema>
 ): Promise<{ error?: string; success?: string }> => {
-  const validator = LoginSchema.safeParse(values);
+  const validator = RegisterSchema.safeParse(values);
   if (!validator.success) {
     return { error: "Invalid fields" };
   }

@@ -3,9 +3,7 @@ import * as z from "zod";
 import { RegisterSchema } from "@/schemas";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import CardWrapper from "./card-wrapper";
-
+import CardWrapper from "@/components/auth/card-wrapper";
 import {
   Form,
   FormField,
@@ -14,10 +12,16 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { register } from "@/actions/register";
+import { useState } from "react";
+import FormActionError from "@/components/form-action-message";
 
-const FormInput = () => {
+const FormInput: React.FC<{}> = () => {
+  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>("");
+
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -29,6 +33,11 @@ const FormInput = () => {
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     console.log(values);
+
+    register(values).then((response: { error?: string; success?: string }) => {
+      setSuccess(response.success);
+      setError(response.error);
+    });
   };
 
   return (
@@ -84,6 +93,7 @@ const FormInput = () => {
                 </FormItem>
               )}
             />
+            <FormActionError message={error ?? success} isError={!!error} />
             <Button type="submit" className="w-full">
               Create an account
             </Button>

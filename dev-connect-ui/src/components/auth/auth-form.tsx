@@ -14,8 +14,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { login } from "@/actions/login";
+import { useState } from "react";
+import FormActionError from "../form-action-message";
 
 const FormInput = () => {
+
+  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>("");
+
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -26,6 +33,11 @@ const FormInput = () => {
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     console.log(values);
+
+    login(values).then((response: {error?: string; success?:string}) => {
+      setSuccess(response.success);
+      setError(response.error);
+    })
   };
 
   return (
@@ -68,6 +80,7 @@ const FormInput = () => {
                 </FormItem>
               )}
             />
+            <FormActionError message={error ?? success} isError={!!error} />
             <Button type="submit" className="w-full">
               Login
             </Button>
