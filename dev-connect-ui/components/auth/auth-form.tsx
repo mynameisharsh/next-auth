@@ -32,11 +32,10 @@ const FormInput = () => {
   });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    console.log(values);
 
-    login(values).then((response: {error?: string; success?:string}) => {
-      setSuccess(response.success);
-      setError(response.error);
+    login(values).then((response: {error?: string; success?:string} | undefined) => {
+      setSuccess(response?.success);
+      setError(response?.error);
     })
   };
 

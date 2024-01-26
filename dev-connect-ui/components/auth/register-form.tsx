@@ -32,7 +32,6 @@ const FormInput: React.FC<{}> = () => {
   });
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
-    console.log(values);
 
     register(values).then((response: { error?: string; success?: string }) => {
       setSuccess(response.success);
