@@ -1,9 +1,11 @@
 "use client";
 import * as z from "zod";
-import { LoginSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import CardWrapper from "./card-wrapper";
+
 import {
   Form,
   FormField,
@@ -16,28 +18,42 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
 const FormInput = () => {
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       email: "",
       password: "",
+      name: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     console.log(values);
   };
 
   return (
     <CardWrapper
-      title="Login"
-      social={true}
-      backButtonHref="/auth/register"
-      backButtonLabel="Don't have an account?"
+      title="Register"
+      social
+      backButtonHref="/auth/login"
+      backButtonLabel="Already have an account?"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-4">
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="John Doe" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               name="email"
               control={form.control}
@@ -69,7 +85,7 @@ const FormInput = () => {
               )}
             />
             <Button type="submit" className="w-full">
-              Login
+              Create an account
             </Button>
           </div>
         </form>
