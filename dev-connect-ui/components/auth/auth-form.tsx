@@ -17,11 +17,16 @@ import { Button } from "../ui/button";
 import { login } from "@/actions/login";
 import { useState } from "react";
 import FormActionError from "../form-action-message";
+import { useSearchParams } from "next/navigation";
 
 const FormInput = () => {
-
+  const searchParam = useSearchParams();
   const [success, setSuccess] = useState<string | undefined>("");
-  const [error, setError] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>(
+    searchParam.get("error") === "OAuthAccountNotLinked"
+      ? "Another account already exists with the same e-mail address"
+      : ""
+  );
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -32,11 +37,12 @@ const FormInput = () => {
   });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-
-    login(values).then((response: {error?: string; success?:string} | undefined) => {
-      setSuccess(response?.success);
-      setError(response?.error);
-    })
+    login(values).then(
+      (response: { error?: string; success?: string } | undefined) => {
+        setSuccess(response?.success);
+        setError(response?.error);
+      }
+    );
   };
 
   return (

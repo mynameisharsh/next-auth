@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 import { RegisterSchema } from "../schemas";
 import { db } from "@/lib/db";
 import { getUserByEmail } from "@/data/user";
+import { generateVerificationToken } from "@/lib/token";
+import { sendVerificationURL } from "@/lib/mail";
 
 export const register = async (
   values: z.infer<typeof RegisterSchema>
@@ -18,10 +20,10 @@ export const register = async (
 
   const isAlreadyExist = await getUserByEmail(email);
 
-  if(isAlreadyExist) {
+  if (isAlreadyExist) {
     return {
-      error: "User is already registered with email id"
-    }
+      error: "User is already registered with email id",
+    };
   }
 
   const hashedPassword: string = await bcrypt.hash(password, 10);
@@ -30,8 +32,14 @@ export const register = async (
     data: {
       email,
       name,
-      password: hashedPassword
-    }
-  })
-  return { success: "User created successfully" };
+      password: hashedPassword,
+    },
+  });
+
+  // Generate Verification token.
+
+  const verificationToken = await generateVerificationToken(email);
+  await sendVerificationURL(verificationToken.email, verificationToken.token);
+
+  return { success: "Verification email sent!" };
 };
