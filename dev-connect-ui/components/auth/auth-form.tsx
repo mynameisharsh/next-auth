@@ -18,6 +18,7 @@ import { login } from "@/actions/login";
 import { useState } from "react";
 import FormActionError from "../form-action-message";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const FormInput = () => {
   const searchParam = useSearchParams();
@@ -85,6 +86,9 @@ const FormInput = () => {
                 </FormItem>
               )}
             />
+            <Button variant={"link"} asChild className="px-0">
+              <Link href={"/auth/forgot-password"}>Forgot Password?</Link>
+            </Button>
             <FormActionError message={error ?? success} isError={!!error} />
             <Button type="submit" className="w-full">
               Login

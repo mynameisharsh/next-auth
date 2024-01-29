@@ -23,3 +23,27 @@ export const getTokenByToken = async (token: string) => {
     return null;
   }
 };
+
+export const getForgotPasswordTokenByEmail = async (email: string) => {
+  try {
+    return await db.resetPasswordToken.findFirst({
+      where: {
+        email,
+      },
+    });
+  } catch {
+    return null;
+  }
+};
+
+export const getForgotPasswordTokenByToken = async (token: string) => {
+  try {
+    return await db.resetPasswordToken.findUnique({
+      where: {
+        token,
+      },
+    });
+  } catch (error) {
+    return null;
+  }
+};
