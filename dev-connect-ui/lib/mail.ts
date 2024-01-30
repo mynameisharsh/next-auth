@@ -21,3 +21,12 @@ export const sendForgotPasswordURL = async (email: string, token: string) => {
     html: `<p>Click on <a href="${verificationLink}">link</a> to change account password.</p>`,
   });
 };
+
+export const sendTwoFactorToken = async (email: string, token: string) => {
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "2FA Code",
+    html: `<p>Here is your 2FA token: ${token}.</p>`,
+  });
+};

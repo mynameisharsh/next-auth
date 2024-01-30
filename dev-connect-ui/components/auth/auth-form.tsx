@@ -28,6 +28,8 @@ const FormInput = () => {
       ? "Another account already exists with the same e-mail address"
       : ""
   );
+  const [twoFactorAuthentication, setTwoFactorAuthentication] =
+    useState<boolean>(false);
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -39,9 +41,28 @@ const FormInput = () => {
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     login(values).then(
-      (response: { error?: string; success?: string } | undefined) => {
-        setSuccess(response?.success);
-        setError(response?.error);
+      (
+        response:
+          | {
+              error?: string;
+              success?: string;
+              twoFactorAuthentication?: boolean;
+            }
+          | undefined
+      ) => {
+        if (response?.error) {
+          form.reset();
+          setError(response?.error);
+        }
+        if (response?.success) {
+          form.reset();
+          setSuccess(response?.success);
+        }
+        if (response?.twoFactorAuthentication) {
+          setTwoFactorAuthentication(
+            response?.twoFactorAuthentication ?? false
+          );
+        }
       }
     );
   };
@@ -56,42 +77,65 @@ const FormInput = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-4">
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="john.doe@gmail.com"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" placeholder="******" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {!twoFactorAuthentication && (
+              <>
+                <FormField
+                  name="email"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="john.doe@gmail.com"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="password"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder="******"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+            {twoFactorAuthentication && (
+              <FormField
+                name="code"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Code</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="123456" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <Button variant={"link"} asChild className="px-0">
               <Link href={"/auth/forgot-password"}>Forgot Password?</Link>
             </Button>
             <FormActionError message={error ?? success} isError={!!error} />
             <Button type="submit" className="w-full">
-              Login
+              {twoFactorAuthentication ? "Confirm" : "Login"}
             </Button>
           </div>
         </form>
