@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient, UserRole } from "@prisma/client";
 import authConfig from "./auth.config";
@@ -11,8 +11,14 @@ declare module "next-auth" {
   interface User {
     /** The user's postal address. */
     role: UserRole;
+    isTwoFactorEnabled: boolean;
   }
 }
+
+export type ExtendedUser = DefaultSession["user"] & {
+  role: UserRole;
+  isTwoFactorEnabled: boolean;
+};
 
 export const {
   handlers: { GET, POST },
@@ -50,6 +56,9 @@ export const {
       if (session.user && token.role) {
         session.user.role = token.role as UserRole;
       }
+      if (session.user && token.isTwoFactorEnabled) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+      }
       return session;
     },
     async jwt({ token }) {
@@ -57,6 +66,7 @@ export const {
       const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
       token.role = existingUser.role;
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
       return token;
     },
   },
