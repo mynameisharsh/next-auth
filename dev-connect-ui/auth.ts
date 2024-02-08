@@ -4,6 +4,7 @@ import { PrismaClient, UserRole } from "@prisma/client";
 import authConfig from "./auth.config";
 import { getUserById } from "./data/user";
 import { db } from "./lib/db";
+import { getAccountByUserId } from "./actions/account";
 
 const prisma = new PrismaClient();
 
@@ -12,12 +13,14 @@ declare module "next-auth" {
     /** The user's postal address. */
     role: UserRole;
     isTwoFactorEnabled: boolean;
+    isOAuth: boolean;
   }
 }
 
 export type ExtendedUser = DefaultSession["user"] & {
   role: UserRole;
   isTwoFactorEnabled: boolean;
+  isOAuth: boolean;
 };
 
 export const {
@@ -56,6 +59,12 @@ export const {
       if (session.user && token.role) {
         session.user.role = token.role as UserRole;
       }
+      if (session.user && token.name) {
+        session.user.name = token.name as string;
+      }
+      if (session.user && token.isOAuth) {
+        session.user.isOAuth = token.isOAuth as boolean;
+      }
       if (session.user && token.isTwoFactorEnabled) {
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
       }
@@ -65,6 +74,11 @@ export const {
       if (!token.sub) return token;
       const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
+      const existingAccount = await getAccountByUserId(existingUser.id);
+      if (!!existingAccount) {
+        token.isOAuth = true;
+      }
+      token.name = existingUser.name;
       token.role = existingUser.role;
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
       return token;

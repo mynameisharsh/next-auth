@@ -1,21 +1,9 @@
 "use client";
 
-import { logOut } from "@/actions/signout";
-import { Button } from "@/components/ui/button";
-import useCurrentUser from "@/hooks/use-current-user";
+import SettingsForm from "@/components/settings-form";
 
 const Settings = () => {
-  const session = useCurrentUser();
-
-  const onClickSignOut = () => {
-    logOut();
-  };
-
-  return (
-    <>
-      <Button onClick={onClickSignOut}>Log out</Button>
-    </>
-  );
+  return <SettingsForm />;
 };
 
 export default Settings;
